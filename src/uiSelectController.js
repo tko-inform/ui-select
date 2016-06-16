@@ -264,7 +264,7 @@ uis.controller('uiSelectCtrl',
           }
         }
 
-        $scope.$broadcast('uis:select', item);
+        $scope.$broadcast('uis:select', item, $scope.$select.beforeSelectCallback);
 
         var locals = {};
         locals[ctrl.parserResult.itemName] = item;

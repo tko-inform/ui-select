@@ -49,8 +49,11 @@ uis.directive('uiSelectSingle', ['$timeout','$compile', function($timeout, $comp
         $select.selected = ngModel.$viewValue;
       };
 
-      scope.$on('uis:select', function (event, item) {
-        $select.selected = item;
+      scope.$on('uis:select', function (event, item, beforeSelectCallBack) {
+          var shouldSelect = !beforeSelectCallBack || beforeSelectCallBack(item);
+          if (shouldSelect) {
+              $select.selected = item;
+          }
       });
 
       scope.$on('uis:close', function (event, skipFocusser) {
