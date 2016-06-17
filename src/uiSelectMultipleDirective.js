@@ -197,7 +197,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         scope.$evalAsync(); //To force $digest
       };
 
-      scope.$on('uis:select', function (event, item) {
+      scope.$on('uis:select', function (event, item, beforeSelectCallBack) {
         var shouldSelect = !beforeSelectCallBack || scope.$parent[beforeSelectCallBack](item);
         if (shouldSelect) {
             $select.selected.push(item);
