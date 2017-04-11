@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.18.1 - 2016-07-10T00:18:10.535Z
+ * Version: 0.18.1 - 2017-04-11T13:54:16.878Z
  * License: MIT
  */
 
@@ -172,31 +172,6 @@ var uis = angular.module('ui.select', [])
       height: boundingClientRect.height || element.prop('offsetHeight'),
       top: boundingClientRect.top + ($window.pageYOffset || $document[0].documentElement.scrollTop),
       left: boundingClientRect.left + ($window.pageXOffset || $document[0].documentElement.scrollLeft)
-    };
-  };
-}]);
-
-/**
- * Debounces functions
- *
- * Taken from UI Bootstrap $$debounce source code
- * See https://github.com/angular-ui/bootstrap/blob/master/src/debounce/debounce.js
- *
- */
-uis.factory('$$uisDebounce', ['$timeout', function($timeout) {
-  return function(callback, debounceTime) {
-    var timeoutPromise;
-
-    return function() {
-      var self = this;
-      var args = Array.prototype.slice.call(arguments);
-      if (timeoutPromise) {
-        $timeout.cancel(timeoutPromise);
-      }
-
-      timeoutPromise = $timeout(function() {
-        callback.apply(self, args);
-      }, debounceTime);
     };
   };
 }]);
@@ -630,7 +605,7 @@ uis.controller('uiSelectCtrl',
   function _isItemDisabled(item) {
     return disabledItems.indexOf(item) > -1;
   }
-  
+
   ctrl.isDisabled = function(itemScope) {
 
     if (!ctrl.open) return;
@@ -638,7 +613,7 @@ uis.controller('uiSelectCtrl',
     var item = itemScope[ctrl.itemProperty];
     var itemIndex = ctrl.items.indexOf(item);
     var isDisabled = false;
-    
+
     if (itemIndex >= 0 && (angular.isDefined(ctrl.disableChoiceExpression) || ctrl.multiple)) {
 
       if (item.isTag) return false;
@@ -650,7 +625,7 @@ uis.controller('uiSelectCtrl',
       if (!isDisabled && angular.isDefined(ctrl.disableChoiceExpression)) {
         isDisabled = !!(itemScope.$eval(ctrl.disableChoiceExpression));
       }
-      
+
       _updateItemDisabled(item, isDisabled);
     }
 
@@ -762,7 +737,7 @@ uis.controller('uiSelectCtrl',
     }
   };
 
-  // Set default function for locked choices - avoids unnecessary 
+  // Set default function for locked choices - avoids unnecessary
   // logic if functionality is not being used
   ctrl.isLocked = function () {
     return false;
@@ -774,7 +749,7 @@ uis.controller('uiSelectCtrl',
 
   function _initaliseLockedChoices(doInitalise) {
     if(!doInitalise) return;
-    
+
     var lockedItems = [];
 
     function _updateItemLocked(item, isLocked) {
@@ -808,7 +783,7 @@ uis.controller('uiSelectCtrl',
       return isLocked;
     };
   }
-  
+
 
   var sizeWatch = null;
   var updaterScheduled = false;
@@ -831,6 +806,9 @@ uis.controller('uiSelectCtrl',
         };
 
     ctrl.searchInput.css('width', '10px');
+
+    var delay = ctrl.multiple ? 50 : 0;
+
     $timeout(function() { //Give tags time to render correctly
       if (sizeWatch === null && !updateIfVisible(calculateContainerWidth())) {
         sizeWatch = $scope.$watch(function() {
@@ -846,7 +824,7 @@ uis.controller('uiSelectCtrl',
           }
         }, angular.noop);
       }
-    });
+    }, delay);
   };
 
   function _handleDropDownSelection(key) {
@@ -2216,6 +2194,31 @@ uis.directive('uiSelectSort', ['$timeout', 'uiSelectConfig', 'uiSelectMinErr', f
         element.off('drop', dropHandler);
       });
     }
+  };
+}]);
+
+/**
+ * Debounces functions
+ *
+ * Taken from UI Bootstrap $$debounce source code
+ * See https://github.com/angular-ui/bootstrap/blob/master/src/debounce/debounce.js
+ *
+ */
+uis.factory('$$uisDebounce', ['$timeout', function($timeout) {
+  return function(callback, debounceTime) {
+    var timeoutPromise;
+
+    return function() {
+      var self = this;
+      var args = Array.prototype.slice.call(arguments);
+      if (timeoutPromise) {
+        $timeout.cancel(timeoutPromise);
+      }
+
+      timeoutPromise = $timeout(function() {
+        callback.apply(self, args);
+      }, debounceTime);
+    };
   };
 }]);
 
