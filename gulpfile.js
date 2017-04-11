@@ -1,7 +1,7 @@
 var fs = require('fs');
 var del = require('del');
 var gulp = require('gulp');
-var es = require('event-stream');
+var streamqueue = require('streamqueue');
 var karma = require('karma').server;
 var $ = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
@@ -28,7 +28,7 @@ gulp.task('watch', ['build','karma-watch'], function() {
 });
 
 gulp.task('clean', function(cb) {
-  del(['dist'], cb);
+  del(['dist', 'temp'], cb);
 });
 
 gulp.task('scripts', ['clean'], function() {
@@ -51,12 +51,13 @@ gulp.task('scripts', ['clean'], function() {
       .pipe($.concat('select_without_templates.js'))
       .pipe($.header('(function () { \n"use strict";\n'))
       .pipe($.footer('\n}());'))
+      .pipe(gulp.dest('temp'))
       .pipe($.jshint())
       .pipe($.jshint.reporter('jshint-stylish'))
       .pipe($.jshint.reporter('fail'));
   };
 
-  return es.merge(buildLib(), buildTemplates())
+  return streamqueue({objectMode: true }, buildLib(), buildTemplates())
     .pipe($.plumber({
       errorHandler: handleError
     }))
@@ -169,6 +170,7 @@ gulp.task('docs:assets', function () {
 });
 
 gulp.task('docs:examples', function () {
+  // Need a way to reset filename list: $.filenames('exampleFiles',{overrideMode:true});
   return gulp.src(['docs/examples/*.html'])
     .pipe($.header(fs.readFileSync('docs/partials/_header.html')))
     .pipe($.footer(fs.readFileSync('docs/partials/_footer.html')))
@@ -184,9 +186,13 @@ gulp.task('docs:index', function () {
     return '<h4><a href="./' + filename + '">' + cleaned + '</a> <plnkr-opener example-path="' + filename + '"></plnkr-opener></h4>';
   });
 
-  return gulp.src('docs/index.html')    
-    .pipe($.replace('<!-- INSERT EXAMPLES HERE -->', exampleFiles.join("\n")))        
+  return gulp.src('docs/index.html')
+    .pipe($.replace('<!-- INSERT EXAMPLES HERE -->', exampleFiles.join("\n")))
     .pipe(gulp.dest('./docs-built/'));
+});
+
+gulp.task('docs:watch', ['docs'], function() {
+  gulp.watch(['docs/**/*.{js,html}'], ['docs']);
 });
 
 var handleError = function (err) {
