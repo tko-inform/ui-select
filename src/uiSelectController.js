@@ -541,6 +541,7 @@ uis.controller('uiSelectCtrl',
         };
 
     ctrl.searchInput.css('width', '10px');
+    var delay = ctrl.multiple ? 50 : 0;
     $timeout(function() { //Give tags time to render correctly
       if (sizeWatch === null && !updateIfVisible(calculateContainerWidth())) {
         sizeWatch = $scope.$watch(function() {
@@ -556,7 +557,7 @@ uis.controller('uiSelectCtrl',
           }
         }, angular.noop);
       }
-    });
+    }, delay);
   };
 
   function _handleDropDownSelection(key) {
